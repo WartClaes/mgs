@@ -21,22 +21,38 @@ DEPTH=2
 ROOT_DIR="."
 SILENT=false
 
-if [ "$1" = "--help" ]; then
-    echo "Usage: mgs -d [DIR=.] -l [DEPTH=2]" >&2
+function help {
     echo
-    echo "Scan for .git dirs under DIR (up to DEPTH dirs deep) and show git status"
+    # echo "Usage: mgs <directory>"
+    echo "Usage: mgs"
+    # echo
+    # echo "Where <directory> is optional and defaults to the current folder"
+    echo
+    echo "mgs [-h, --help]\tSets a sub directory"
+    echo "mgs -d <directory>\tSets a sub directory"
+    echo "mgs -l <number>\t\tSets a depth for the search"
+    echo "mgs -s\t\t\tSilences 'ok' messages"
     exit 1
+}
+
+if [ "$1" = "--help" ]; then
+    help
 fi
 
-while getopts d:l:s option
+# if [ -n "$1" ]; then
+#     ROOT_DIR=$1
+#     echo $ROOT_DIR
+#     shift
+# fi
+
+while getopts :d:l:sh option
 do
     case "${option}"
     in
     l) DEPTH=${OPTARG};;
     d) ROOT_DIR=${OPTARG};;
     s) SILENT=true;;
-    [?]) echo "Usage: mgs -d [DIR=.] -l [DEPTH=2]" >&2
-         exit 1;;
+    ?) help;;
     esac
 done
 
@@ -130,16 +146,14 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     #     STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
     # fi
 
-    if [ "$SILENT" = false ] && [ "$STATUS_NEEDS" = "" ]; then
-        STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
-        printf "${PROJ_DIR}: "
-        printf "$STATUS_NEEDS\n"
-    fi
-
     if [ "$STATUS_NEEDS" != "" ]; then
         printf "${PROJ_DIR}: "
         printf "$STATUS_NEEDS\n"
     fi
 
-    # Print the output
+    if [ "$SILENT" = false ] && [ "$STATUS_NEEDS" = "" ]; then
+        STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
+        printf "${PROJ_DIR}: "
+        printf "$STATUS_NEEDS\n"
+    fi
 done
