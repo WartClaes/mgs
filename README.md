@@ -19,7 +19,7 @@ based on [https://github.com/fboender/multi-git-status](https://github.com/fboen
 ## Options
 
 ```
-$ msg --help
+$ mgs --help
 
 Usage: mgs
 
