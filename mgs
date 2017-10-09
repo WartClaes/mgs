@@ -19,6 +19,7 @@ C_UNTRACKED="$C_CYAN"
 DEBUG=0
 DEPTH=2
 ROOT_DIR="."
+SILENT=false
 
 if [ "$1" = "--help" ]; then
     echo "Usage: mgs -d [DIR=.] -l [DEPTH=2]" >&2
@@ -27,12 +28,13 @@ if [ "$1" = "--help" ]; then
     exit 1
 fi
 
-while getopts d:l: option
+while getopts d:l:s option
 do
     case "${option}"
     in
     l) DEPTH=${OPTARG};;
     d) ROOT_DIR=${OPTARG};;
+    s) SILENT=true;;
     [?]) echo "Usage: mgs -d [DIR=.] -l [DEPTH=2]" >&2
          exit 1;;
     esac
@@ -41,8 +43,6 @@ done
 # Find all .git dirs, up to DEPTH levels deep
 for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     PROJ_DIR=$(dirname $GIT_DIR)
-
-    printf "${PROJ_DIR}: "
 
     [ $DEBUG -eq 1 ] && echo
 
@@ -126,10 +126,20 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     if [ "$UNTRACKED" != "" ]; then
         STATUS_NEEDS="${STATUS_NEEDS}${C_UNTRACKED}Untracked files${C_RESET} "
     fi
-    if [ "$STATUS_NEEDS" = "" ]; then
+    # if [ "$STATUS_NEEDS" = "" ]; then
+    #     STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
+    # fi
+
+    if [ "$SILENT" = false ] && [ "$STATUS_NEEDS" = "" ]; then
         STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
+        printf "${PROJ_DIR}: "
+        printf "$STATUS_NEEDS\n"
+    fi
+
+    if [ "$STATUS_NEEDS" != "" ]; then
+        printf "${PROJ_DIR}: "
+        printf "$STATUS_NEEDS\n"
     fi
 
     # Print the output
-    printf "$STATUS_NEEDS\n"
 done
