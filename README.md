@@ -13,7 +13,7 @@ based on [https://github.com/fboender/multi-git-status](https://github.com/fboen
     ```
 3. Run the scripts
     ```bash
-    $ msg
+    $ mgs
     ```
 
 ## Options
