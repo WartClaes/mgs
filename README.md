@@ -21,13 +21,10 @@ based on [https://github.com/fboender/multi-git-status](https://github.com/fboen
 ```
 $ msg --help
 
+Usage: mgs
 
+mgs [-h, --help]	Sets a sub directory
+mgs -d <directory>	Sets a sub directory
+mgs -l <number>		Sets a depth for the search
+mgs -s			Silences 'ok' messages
 ```
-### -d
-
-Specify a folder to run the command
-
-### -l
-
-Specify a depth for the search
-
