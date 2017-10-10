@@ -23,7 +23,7 @@ $ mgs --help
 
 Usage: mgs
 
-mgs [-h, --help]	Sets a sub directory
+mgs [-h, --help]	Show help
 mgs -d <directory>	Sets a sub directory
 mgs -l <number>		Sets a depth for the search
 mgs -s			Silences 'ok' messages

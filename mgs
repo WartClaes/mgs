@@ -30,7 +30,7 @@ function help {
     # echo
     # echo "Where <directory> is optional and defaults to the current folder"
     echo
-    echo "mgs [-h, --help]\tSets a sub directory"
+    echo "mgs [-h, --help]\tShow help"
     echo "mgs -d <directory>\tSets a sub directory"
     echo "mgs -l <number>\t\tSets a depth for the search"
     echo "mgs -s\t\t\tSilences 'ok' messages"
