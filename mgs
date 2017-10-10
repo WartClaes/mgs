@@ -21,7 +21,7 @@ DEBUG=0
 DEPTH=2
 ROOT_DIR="."
 SILENT=false
-FULL=false
+FILES=false
 
 function help {
     echo
@@ -55,7 +55,7 @@ do
     l) DEPTH=${OPTARG};;
     d) ROOT_DIR=${OPTARG};;
     s) SILENT=true;;
-    f) FULL=true;;
+    f) FILES=true;;
     ?) help;;
     esac
 done
@@ -78,7 +78,7 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
 
     for REF_HEAD in $(ls $GIT_DIR/refs/heads); do
         # Check if this branch is tracking a remote branch
-        TRACKING_REMOTE=$(git --git-dir $GIT_DIR rev-parse --abbrev-ref --symbolic-full-name $REF_HEAD@{u} 2>/dev/null)
+        TRACKING_REMOTE=$(git --git-dir $GIT_DIR rev-parse --abbrev-ref --symbolic-FILES-name $REF_HEAD@{u} 2>/dev/null)
         if [ $? -eq 0 ]; then
             # Branch is tracking a remote branch. Find out how much behind /
             # ahead it is of that remote branch.
@@ -151,7 +151,7 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
 			HAS_UNCOMMITED_FILES+="\n\t ${C_PINK}${FILE}"
 		done
 
-		if [ "$HAS_UNCOMMITED_FILES" != "" ] && [ "$FULL" = true ]; then
+		if [ "$HAS_UNCOMMITED_FILES" != "" ] && [ "$FILES" = true ]; then
 			STATUS_NEEDS+="${HAS_UNCOMMITED_FILES}${C_WHITE}"
 		fi
 
@@ -160,7 +160,7 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
 			HAS_UNSTAGED_FILES+="\n\t ${C_PINK}${FILE}"
 		done
 
-		if [ "$HAS_FILES" != "" ] && [ "$FULL" = true ]; then
+		if [ "$HAS_FILES" != "" ] && [ "$FILES" = true ]; then
 			STATUS_NEEDS+="${HAS_UNSTAGED_FILES}${C_WHITE}"
 		fi
 
@@ -173,7 +173,7 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
 			HAS_FILES+="\n\t ${C_PINK}${FILE}"
 		done
 
-		if [ "$HAS_FILES" != "" ] && [ "$FULL" = true ]; then
+		if [ "$HAS_FILES" != "" ] && [ "$FILES" = true ]; then
 			STATUS_NEEDS+="${HAS_FILES}${C_WHITE}"
 		fi
 
