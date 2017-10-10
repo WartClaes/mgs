@@ -6,6 +6,7 @@ C_RED="\033[1;31m"
 C_YELLOW="\033[1;33m"
 C_BLUE="\033[1;34m"
 C_CYAN="\033[1;36m"
+C_PINK="\033[1;35m"
 C_WHITE="\033[1;37m"
 C_GREEN="\033[1;32m"
 C_RESET="$(tput sgr0)"
@@ -20,6 +21,7 @@ DEBUG=0
 DEPTH=2
 ROOT_DIR="."
 SILENT=false
+FULL=false
 
 function help {
     echo
@@ -32,6 +34,7 @@ function help {
     echo "mgs -d <directory>\tSets a sub directory"
     echo "mgs -l <number>\t\tSets a depth for the search"
     echo "mgs -s\t\t\tSilences 'ok' messages"
+    echo "mgs -f\t\t\tShow changed files"
     exit 1
 }
 
@@ -45,13 +48,14 @@ fi
 #     shift
 # fi
 
-while getopts :d:l:sh option
+while getopts :d:l:shf option
 do
     case "${option}"
     in
     l) DEPTH=${OPTARG};;
     d) ROOT_DIR=${OPTARG};;
     s) SILENT=true;;
+    f) FULL=true;;
     ?) help;;
     esac
 done
@@ -128,6 +132,9 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     # Find out if there are untracked changes
     UNTRACKED=$(git --work-tree $(dirname $GIT_DIR) --git-dir $GIT_DIR ls-files --exclude-standard --others)
 
+	UNSTAGED_FILES=$(git --work-tree $(dirname $GIT_DIR) --git-dir $GIT_DIR diff --cached --name-only)
+	UNCOMMITED_FILES=$(git --work-tree $(dirname $GIT_DIR) --git-dir $GIT_DIR diff --name-only)
+
     # Build up the status string
     STATUS_NEEDS=""
     if [ \! -z "$NEEDS_PUSH_BRANCHES" ]; then
@@ -138,9 +145,38 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     fi
     if [ "$UNSTAGED" -ne 0 -o "$UNCOMMITTED" -ne 0 ]; then
         STATUS_NEEDS="${STATUS_NEEDS}${C_NEEDS_COMMIT}Uncommitted changes${C_RESET} "
+
+		HAS_UNCOMMITED_FILES=""
+		for FILE in $UNCOMMITED_FILES; do
+			HAS_UNCOMMITED_FILES+="\n\t ${C_PINK}${FILE}"
+		done
+
+		if [ "$HAS_UNCOMMITED_FILES" != "" ] && [ "$FULL" = true ]; then
+			STATUS_NEEDS+="${HAS_UNCOMMITED_FILES}${C_WHITE}"
+		fi
+
+		HAS_UNSTAGED_FILES=""
+		for FILE in $UNSTAGED_FILES; do
+			HAS_UNSTAGED_FILES+="\n\t ${C_PINK}${FILE}"
+		done
+
+		if [ "$HAS_FILES" != "" ] && [ "$FULL" = true ]; then
+			STATUS_NEEDS+="${HAS_UNSTAGED_FILES}${C_WHITE}"
+		fi
+
     fi
     if [ "$UNTRACKED" != "" ]; then
         STATUS_NEEDS="${STATUS_NEEDS}${C_UNTRACKED}Untracked files${C_RESET} "
+
+		HAS_FILES=""
+		for FILE in $UNTRACKED; do
+			HAS_FILES+="\n\t ${C_PINK}${FILE}"
+		done
+
+		if [ "$HAS_FILES" != "" ] && [ "$FULL" = true ]; then
+			STATUS_NEEDS+="${HAS_FILES}${C_WHITE}"
+		fi
+
     fi
     # if [ "$STATUS_NEEDS" = "" ]; then
     #     STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "

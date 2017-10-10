@@ -26,5 +26,6 @@ Usage: mgs
 mgs [-h, --help]	Sets a sub directory
 mgs -d <directory>	Sets a sub directory
 mgs -l <number>		Sets a depth for the search
-mgs -s			Silences 'ok' messages
+mgs -s				Silences 'ok' messages
+mgs -f				Show changed files
 ```
