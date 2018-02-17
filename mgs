@@ -63,6 +63,7 @@ done
 # Find all .git dirs, up to DEPTH levels deep
 for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     PROJ_DIR=$(dirname $GIT_DIR)
+    BRANCH_NAME=$(git --git-dir $GIT_DIR  rev-parse --abbrev-ref HEAD)
 
     [ $DEBUG -eq 1 ] && echo
 
@@ -182,14 +183,20 @@ for GIT_DIR in $(find -L $ROOT_DIR -maxdepth $DEPTH -name ".git" -type d); do
     #     STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
     # fi
 
+    if [ "$BRANCH_NAME" != "develop" ] || [ "$FILES" = true ]; then
+        PROJ_LOG="${C_WHITE}${PROJ_DIR}${C_RESET} on ${C_PINK}${BRANCH_NAME}${C_RESET}: "
+    else
+        PROJ_LOG="${C_WHITE}${PROJ_DIR}${C_RESET}: "
+    fi
+
     if [ "$STATUS_NEEDS" != "" ]; then
-        printf "${PROJ_DIR}: "
+        printf "${PROJ_LOG}"
         printf "$STATUS_NEEDS\n"
     fi
 
     if [ "$SILENT" = false ] && [ "$STATUS_NEEDS" = "" ]; then
         STATUS_NEEDS="${STATUS_NEEDS}${C_OK}ok${C_RESET} "
-        printf "${PROJ_DIR}: "
+        printf "${PROJ_LOG}"
         printf "$STATUS_NEEDS\n"
     fi
 done
